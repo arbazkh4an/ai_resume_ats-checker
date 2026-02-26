@@ -32,16 +32,31 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: "system",
-            content: "You are an expert ATS (Applicant Tracking System) and senior tech recruiter. You always respond with valid JSON only, no markdown."
+            content: "You are a world-class ATS (Applicant Tracking System) expert and senior technical recruiter. You provide highly detailed, structured, and constructive analysis of resumes against job descriptions. You always respond with valid JSON only, no markdown."
           },
           {
             role: "user",
-            content: `Analyze this resume against the job description and return ONLY a valid JSON object with these keys:
-- "score": number 0-100 for ATS match
-- "keywordMatches": string array of matched keywords
-- "missingKeywords": string array of missing keywords
-- "feedback": string with improvement advice
-- "formatFeedback": string about format readability
+            content: `Perform a comprehensive deep-dive analysis of this resume against the job description. Return ONLY a valid JSON object with the following structure:
+{
+  "score": number (0-100),
+  "summary": "a 2-3 sentence overview of the candidate's profile",
+  "skills": {
+    "matched": ["list of skills found in both"],
+    "missing": ["critical skills from JD not found in resume"],
+    "bonus": ["valuable skills in resume not explicitly in JD"]
+  },
+  "experience_analysis": "detailed evaluation of their work history relevance",
+  "education_analysis": "evaluation of education and certifications",
+  "format_feedback": "detailed advice on resume layout and structural improvements",
+  "action_items": [
+    "specific, actionable step to improve the resume or profile",
+    "another specific step",
+    "..."
+  ],
+  "keywordMatches": ["all relevant keywords matched"],
+  "missingKeywords": ["important keywords to consider adding"],
+  "feedback": "overall high-level advice"
+}
 
 Job Description: ${jobDescription}
 
