@@ -21,14 +21,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Could not extract text from PDF" }, { status: 400 });
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "GROQ_API_KEY is not configured in .env.local" }, { status: 500 });
+    }
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "arcee-ai/trinity-large-preview:free",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",
@@ -70,8 +75,14 @@ ${resumeText.substring(0, 6000)}`
 
     if (!response.ok) {
       const errBody = await response.text();
-      console.error("OpenRouter error:", errBody);
-      return NextResponse.json({ error: "AI API error: " + response.status }, { status: 500 });
+      console.error("Groq API error:", errBody);
+      let errorMessage = "AI API error: " + response.status;
+      if (response.status === 401) {
+        errorMessage = "Groq API Authentication failed. Please check your GROQ_API_KEY.";
+      } else if (response.status === 429) {
+        errorMessage = "Groq API rate limit exceeded. Please try again later.";
+      }
+      return NextResponse.json({ error: errorMessage }, { status: response.status === 401 ? 401 : 500 });
     }
 
     const data = await response.json();
