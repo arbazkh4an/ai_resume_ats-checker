@@ -23,7 +23,11 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "GROQ_API_KEY is not configured in .env.local" }, { status: 500 });
+      console.error("GROQ_API_KEY is missing from environment variables.");
+      return NextResponse.json(
+        { error: "GROQ_API_KEY is not configured. If this is Vercel, please add it to Environment Variables and redeploy." },
+        { status: 500 }
+      );
     }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
